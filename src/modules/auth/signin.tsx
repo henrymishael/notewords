@@ -73,7 +73,7 @@ export default function Signin() {
           >
             {isPending ? <Loader /> : "Login"}
           </Button>
-          <div className="flex justify-between mt-2 text-sm">
+          <div className="w-full flex flex-col md:flex-row justify-center items-center gap-3 md:justify-between mt-2 text-sm">
             <Link
               href="/forgot-password"
               className="text-amber-300 font-semibold hover:underline"
