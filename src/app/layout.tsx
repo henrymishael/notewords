@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Quicksand } from "next/font/google";
+import Providers from "@/providers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,6 +11,11 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const quickSand = Quicksand({
+  variable: "--font-quick-sand",
+  subsets: ["latin", "latin", "vietnamese"],
 });
 
 export const metadata: Metadata = {
@@ -25,9 +31,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${quickSand.className} antialiased`}
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
