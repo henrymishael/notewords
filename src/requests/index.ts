@@ -17,6 +17,7 @@ const apiService = () => {
       "Access-Control-Allow-Methods": "*",
       "Access-Control-Allow-Origin": baseURL,
     },
+    timeout: 60 * 1000,
   });
 
   axiosService.interceptors.request.use(
@@ -25,7 +26,7 @@ const apiService = () => {
       const token = cookies[_storageKeys.token];
 
       if (!token) return config;
-      (config.headers as AxiosHeaders).set("Authorization", `Bearer ${token}`);
+      (config.headers as AxiosHeaders).set("Authorization", `${token}`);
 
       return config;
     }

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { MenuIcon } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
+import { onHandleSignout } from "@/lib/utils";
 
 export const navlinks = [
   {
@@ -37,22 +39,47 @@ const LargeDeviceMenu = () => {
 };
 
 export const CtaButtons = () => {
+  const { data: session, status } = useSession();
+
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:gap-3 gap-6">
-      <Link href="/signin">
-        <Button
-          className="w-full md:w-auto rounded-4xl text-amber-400 border-amber-400 font-semibold hover:text-amber-400/80 px-6 md:px-3 lg:px-6 h-14 md:h-12 lg:h-14"
-          variant="outline"
-        >
-          Sign In
-        </Button>
-      </Link>
-      <Link href="/register">
-        <Button className="w-full md:w-auto rounded-4xl bg-amber-400 text-white font-semibold hover:bg-amber-400/80 px-6 h-14 md:h-12 lg:h-14 md:px-3 lg:px-6">
-          Get Started
-        </Button>
-      </Link>
-    </div>
+    <>
+      {status != "authenticated" ? (
+        <div className="flex flex-col md:flex-row md:items-center md:gap-3 gap-6">
+          <Link href="/signin">
+            <Button
+              className="w-full md:w-auto rounded-4xl text-amber-400 border-amber-400 font-semibold hover:text-amber-400/80 px-6 md:px-3 lg:px-6 h-14 md:h-12 lg:h-14"
+              variant="outline"
+            >
+              Sign In
+            </Button>
+          </Link>
+          <Link href="/register">
+            <Button className="w-full md:w-auto rounded-4xl bg-amber-400 text-white font-semibold hover:bg-amber-400/80 px-6 h-14 md:h-12 lg:h-14 md:px-3 lg:px-6">
+              Get Started
+            </Button>
+          </Link>
+        </div>
+      ) : (
+        <div className="flex flex-col md:flex-row md:items-center md:gap-3 gap-6">
+          <Button
+            onClick={() => signOut()}
+            className="w-full md:w-auto rounded-4xl text-amber-400 border-amber-400 font-semibold hover:text-amber-400/80 px-6 md:px-3 lg:px-6 h-14 md:h-12 lg:h-14"
+            variant="outline"
+          >
+            Sign Out
+          </Button>
+
+          <Link href="/register">
+            <Button
+              onClick={onHandleSignout}
+              className="w-full md:w-auto rounded-4xl bg-amber-400 text-white font-semibold hover:bg-amber-400/80 px-6 h-14 md:h-12 lg:h-14 md:px-3 lg:px-6"
+            >
+              Profile
+            </Button>
+          </Link>
+        </div>
+      )}
+    </>
   );
 };
 

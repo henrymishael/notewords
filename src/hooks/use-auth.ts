@@ -1,6 +1,16 @@
 import { getFieldErrors, parseError } from "@/lib/errorHandler";
-import { login, register, resendOTP, verifyEmail } from "@/requests/auth";
-import { useMutation } from "@tanstack/react-query";
+import {
+  checkEmail,
+  checkUsername,
+  logout,
+  register,
+  resendOTP,
+  signin,
+  verifyEmail,
+} from "@/requests/auth";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -24,15 +34,64 @@ export function useRegister() {
   });
 }
 
+// export function useLogin() {
+//   const router = useRouter();
+
+//   return useMutation({
+//     mutationFn: (data: ILoginPayload) =>
+//       signIn("credentials", { ...data, redirect: false }),
+//     onSuccess: (data) => {
+//       toast.success("Login successful");
+//       localStorage.setItem("user", JSON.stringify(data));
+//       router.push("/dashboard");
+//     },
+//     onError: (error) => {
+//       toast.error(parseError(error));
+//     },
+//   });
+// }
+
 export function useLogin() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (data: ILoginPayload) => login(data),
+    mutationFn: async (data: ILoginPayload) => {
+      const result = await signIn("credentials", {
+        login: data.login,
+        password: data.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        throw new Error(result.error);
+      }
+
+      return result;
+    },
     onSuccess: (data) => {
-      toast.success("Login successful");
-      localStorage.setItem("user", JSON.stringify(data.data));
-      router.push("/");
+      if (data?.ok) {
+        toast.success("Login successful");
+
+        router.push("/dashboard");
+      } else {
+        toast.error("Login failed");
+      }
+    },
+    onError: (error) => {
+      toast.error(parseError(error));
+    },
+  });
+}
+
+export function useLogout() {
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (data: ILoginPayload) => logout(data),
+    onSuccess: () => {
+      toast.success("Logout successful");
+      window.localStorage.removeItem("user");
+      router.push("/signin");
     },
     onError: (error) => {
       toast.error(parseError(error));
@@ -67,6 +126,76 @@ export function useResendOTP() {
     onError: (error: Error) => {
       const errorMessage = parseError(error);
       toast.error(errorMessage);
+    },
+  });
+}
+
+export function useCheckEmail() {
+  return useMutation({
+    mutationFn: (data: string) => checkEmail(data),
+    onSuccess: (response: ICheckEmail) => {
+      if (response.email_taken === false) {
+        toast.success("Email available");
+      } else {
+        toast.error("Email already taken, try again");
+      }
+    },
+    onError: (error: Error) => {
+      toast.error("Error checking email availability", {
+        description: error.message,
+      });
+    },
+  });
+}
+
+export function useCheckUsername() {
+  return useMutation({
+    mutationFn: (data: string) => checkUsername(data),
+    onSuccess: (response: ICheckUsername) => {
+      if (response.username_taken === false) {
+        toast.success("Username available");
+      } else {
+        toast.error("Username already taken, try again");
+      }
+    },
+    onError: (error: Error) => {
+      toast.error("Error checking username availability", {
+        description: error.message,
+      });
+    },
+  });
+}
+
+export function useIsAuth() {
+  return useQuery({
+    queryKey: ["isAuth"],
+    queryFn: async () => {
+      const res = await fetch("/api/auth", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        return { isAuth: false };
+      }
+      const data = await res.json();
+
+      if (!data.token) {
+        return { isAuth: false };
+      }
+
+      const decodedToken = jwt.decode(data.token) as JwtPayload;
+
+      if (!decodedToken) {
+        return { isAuth: false };
+      }
+
+      const tokenExpires = (decodedToken?.exp || 0) * 1000;
+
+      if (tokenExpires - new Date().valueOf() < 0) {
+        return { isAuth: false };
+      }
+
+      return { isAuth: true, token: data.token };
     },
   });
 }
