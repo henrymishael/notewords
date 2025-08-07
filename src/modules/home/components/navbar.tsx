@@ -86,7 +86,7 @@ export const CtaButtons = () => {
 const HomeNavbar = () => {
   const sidebar = useSidebar();
   return (
-    <nav className="h-20 md:h-26 flex px-4 lg:px-24">
+    <nav className="h-20 md:h-26 flex px-4 lg:px-24 @container/navbar">
       <div className="flex items-center justify-between w-full">
         <Link className="md:w-[135px]" href="/">
           <h1 className="text-2xl font-light">

@@ -9,6 +9,7 @@ import {
   verifyEmail,
 } from "@/requests/auth";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { error } from "console";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -77,8 +78,8 @@ export function useLogin() {
         toast.error("Login failed");
       }
     },
-    onError: (error) => {
-      toast.error(parseError(error));
+    onError: () => {
+      toast.error("invalid credentials");
     },
   });
 }

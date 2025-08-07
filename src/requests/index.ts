@@ -37,6 +37,7 @@ const apiService = () => {
     (error: AxiosError) => {
       if (error?.response === undefined)
         toast.error("Unable to connect to internet");
+      // return null;
       else {
         const errorData = error?.response?.data as Record<
           string,
@@ -124,7 +125,6 @@ const apiService = () => {
 
     delete: async ({ url, payload, isFormData = false }: IPostProps) => {
       try {
-        // Added automatic FormData detection for consistency
         const isPayloadFormData = payload instanceof FormData;
         const config =
           isFormData || isPayloadFormData

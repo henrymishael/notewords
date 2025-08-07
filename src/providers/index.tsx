@@ -9,7 +9,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
       <QueryProvider>
         <TooltipProvider>
           {children}
-          <Toaster />
+          <Toaster position="top-right" />
         </TooltipProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryProvider>
